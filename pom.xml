@@ -4,56 +4,83 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
+    <groupId>com.example</groupId>
     <artifactId>spring-cloud-all</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <version>1.0</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.12.RELEASE</version>
+        <version>1.5.2.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <modules>
-        <module>spring-cloud-server</module>
-        <module>spring-cloud-client</module>
+        <module>eureka-server</module>
+        <module>service-hi</module>
+        <module>service-feign</module>
+        <module>service-ribbon</module>
     </modules>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <spring-boot-version>2.3.12.RELEASE</spring-boot-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <springboot-version>1.5.2.RELEASE</springboot-version>
+        <springcloud-version>1.4.7.RELEASE</springcloud-version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${springboot-version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>Hoxton.SR12</version>
+                <version>Dalston.SR1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <!--<dependencies>-->
+    <!--    <dependency>-->
+    <!--        <groupId>javax.xml.bind</groupId>-->
+    <!--        <artifactId>jaxb-api</artifactId>-->
+    <!--        <version>2.3.0</version>-->
+    <!--    </dependency>-->
+    <!--    <dependency>-->
+    <!--        <groupId>com.sun.xml.bind</groupId>-->
+    <!--        <artifactId>jaxb-impl</artifactId>-->
+    <!--        <version>2.3.0</version>-->
+    <!--    </dependency>-->
+    <!--    <dependency>-->
+    <!--        <groupId>com.sun.xml.bind</groupId>-->
+    <!--        <artifactId>jaxb-core</artifactId>-->
+    <!--        <version>2.3.0</version>-->
+    <!--    </dependency>-->
+    <!--    <dependency>-->
+    <!--        <groupId>javax.activation</groupId>-->
+    <!--        <artifactId>activation</artifactId>-->
+    <!--        <version>1.1.1</version>-->
+    <!--    </dependency>-->
+    <!--</dependencies>-->
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot-version}</version>
+                <version>${springboot-version}</version>
             </plugin>
         </plugins>
     </build>
+
 
 </project>
