@@ -24,6 +24,9 @@
         <module>service-zuul</module>
         <module>config-server</module>
         <module>config-client</module>
+        <module>sleuth-server-zipkin</module>
+        <module>sleuth-service-hi</module>
+        <module>sleuth-service-miya</module>
     </modules>
 
     <properties>
