@@ -1,0 +1,12 @@
+server:
+  port: 8881
+
+spring:
+  application:
+    name: config-client
+  cloud:
+    config:
+      label: master # 仓库分支
+      profile: dev # 开发环境
+      uri: http://localhost:8888 # 配置中心的地址
+

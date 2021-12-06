@@ -1,0 +1,15 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/qin-gs/SpringcloudConfig # git仓库地址
+          search-paths: respo # 仓库路径
+          username: # 访问仓库的用户名
+          password: # 访问仓库的密码，如果是公开仓库，无需填写
+      label: master
