@@ -292,3 +292,34 @@ spring:
 
   
 
+#### 高可用的服务注册中心
+
+需要修改 /ect/hosts 文件
+
+
+
+
+
+#### Hystrix Dashboard
+
+Hystrix Dashboard 作为断路器状态的一个组件，提供了数据监控和友好的图形化界面。
+
+利用 Hystrix Dashboard 去监控断路器的 Hystrix command
+
+```java
+// @EnableHystrix注解开启断路器，并且需要在程序中声明断路点HystrixCommand；
+// @EnableHystrixDashboard，开启HystrixDashboard
+
+// 访问路径 http://localhost:8762/actuator/hystrix.stream
+@RequestMapping("/hi")
+@HystrixCommand(fallbackMethod = "hiError") // 声明断路点
+public String home(@RequestParam(value = "name", defaultValue = "forezp") String name) {
+    return "hi " + name + " ,i am from port:" + port;
+}
+```
+
+
+
+#### Turbine
+
+Hystrix Turbine 将每个服务 Hystrix Dashboard 数据进行了整合

@@ -27,6 +27,9 @@
         <module>sleuth-server-zipkin</module>
         <module>sleuth-service-hi</module>
         <module>sleuth-service-miya</module>
+        <module>hystrix-service-hi</module>
+        <module>hystrix-service-lucy</module>
+        <module>hystrix-service-turbin</module>
     </modules>
 
     <properties>
