@@ -30,6 +30,8 @@
         <module>hystrix-service-hi</module>
         <module>hystrix-service-lucy</module>
         <module>hystrix-service-turbin</module>
+        <module>consul-miya</module>
+        <module>spring-cloud-notes</module>
     </modules>
 
     <properties>

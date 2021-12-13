@@ -1,0 +1,14 @@
+server:
+  port: 8503
+
+spring:
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        healthCheckPath: ${manage.contextPath}/heanth
+        healthCheckInterval: 15s
+        instance-id: consul-miya
+  application:
+    name: consul-miya

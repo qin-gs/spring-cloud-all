@@ -323,3 +323,25 @@ public String home(@RequestParam(value = "name", defaultValue = "forezp") String
 #### Turbine
 
 Hystrix Turbine 将每个服务 Hystrix Dashboard 数据进行了整合
+
+
+
+#### Consul
+
+spring cloud consul 组件，它是一个提供服务发现和配置的工具。consul具有分布式、高可用、高扩展性。
+
+- 服务发现：consul通过http 方式注册服务，并且服务与服务之间相互感应。
+- 服务健康监测
+- key/value 存储
+- 多数据中心
+
+
+
+
+
+
+
+
+
+
+
