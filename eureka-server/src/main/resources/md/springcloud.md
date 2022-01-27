@@ -337,11 +337,60 @@ spring cloud consul 组件，它是一个提供服务发现和配置的工具。
 
 
 
+### 源码解析
+
+接口 `org.springframework.cloud.client.discovery.DiscoveryClient` 定义发现服务的常用抽象方法
+
+`org.springframework.cloud.netflix.eureka.EurekaDiscoveryClient` 实现上述接口，完成对 Eureka 发现服务的封装，该类依赖 `com.netflix.discovery.EurekaClient`(netflix包中的接口，主要定义 eureka 发现服务的抽象方法)，真正发现服务的是 netflix 中的 `com.netflix.discovery.DiscoveryClient`
 
 
 
+![EurekaDiscoveryClient继承关系](./img/EurekaDiscoveryClient继承关系.png)
 
 
 
+**注册中心信息的加载**
+
+DiscoveryClient 类
+
+`com.netflix.discovery.endpoint.EndpointUtils#getServiceUrlsMapFromConfig` 该方法中加载了两个内容 Region, Zone
+
+- 一个微服务只能属于一个 Region，默认为 default
+
+- 如果没有为 Region 配置 Zone 时，默认为 defaultZone，可以有多个
+
+获取了 Region 和 Zone 之后加载 eureka server 具体地址，`EurekaClientConfigBean` 加载配置文件中的内容
+
+`org.springframework.cloud.netflix.eureka.EurekaClientConfigBean#getEurekaServerServiceUrls`
+
+`eureka.client.serviceUrl.defaultZone` 属性可以配置多个，并且需要通过逗号分隔
+
+![EurekaClientConfigBean继承关系](./img/EurekaClientConfigBean继承关系.png)
+
+**服务注册**
+
+`com.netflix.discovery.DiscoveryClient#initScheduledTasks`
+
+创建了一个`InstanceInfoReplicator`类的实例，它会执行一个定时任务，该类的 run 方法中  
+
+`com.netflix.discovery.DiscoveryClient#register`真正进行注册，传入了一个`com.netflix.appinfo.InstanceInfo`对象，该对象就是注册时候客户端给服务端的服务的元数据
 
 
+
+**服务获取 与 服务续约**
+
+服务获取：`eureka.client.fetch-registry=true`
+
+服务续约：heartbeat
+
+
+
+**服务注册中心处理**
+
+所有的交互是通过 rest 的请求发起的，服务注册中心中对请求的处理
+
+Eureka Server对于各类REST请求的定义都位于：`com.netflix.eureka.resources`包下
+
+服务注册功能中，首先对注册信息进行校验，然后调用`org.springframework.cloud.netflix.eureka.server.InstanceRegistry`对象中的`register(InstanceInfo info, int leaseDuration, boolean isReplication)`函数来进行服务注册
+
+在注册函数中，先调用`publishEvent`函数，将该新服务注册的事件传播出去，然后调用`com.netflix.eureka.registry.AbstractInstanceRegistry`父类中的注册实现，将`InstanceInfo`中的元数据信息存储在一个`ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>>`对象中，它是一个两层Map结构，第一层的key存储服务名：`InstanceInfo`中的`appName`属性，第二层的key存储实例名：`InstanceInfo`中的`instanceId`属性。
