@@ -339,6 +339,8 @@ spring cloud consul 组件，它是一个提供服务发现和配置的工具。
 
 ### 源码解析
 
+#### eureka 服务注册 与 发现
+
 接口 `org.springframework.cloud.client.discovery.DiscoveryClient` 定义发现服务的常用抽象方法
 
 `org.springframework.cloud.netflix.eureka.EurekaDiscoveryClient` 实现上述接口，完成对 Eureka 发现服务的封装，该类依赖 `com.netflix.discovery.EurekaClient`(netflix包中的接口，主要定义 eureka 发现服务的抽象方法)，真正发现服务的是 netflix 中的 `com.netflix.discovery.DiscoveryClient`
@@ -394,3 +396,93 @@ Eureka Server对于各类REST请求的定义都位于：`com.netflix.eureka.reso
 服务注册功能中，首先对注册信息进行校验，然后调用`org.springframework.cloud.netflix.eureka.server.InstanceRegistry`对象中的`register(InstanceInfo info, int leaseDuration, boolean isReplication)`函数来进行服务注册
 
 在注册函数中，先调用`publishEvent`函数，将该新服务注册的事件传播出去，然后调用`com.netflix.eureka.registry.AbstractInstanceRegistry`父类中的注册实现，将`InstanceInfo`中的元数据信息存储在一个`ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>>`对象中，它是一个两层Map结构，第一层的key存储服务名：`InstanceInfo`中的`appName`属性，第二层的key存储实例名：`InstanceInfo`中的`instanceId`属性。
+
+
+
+#### Ribbon 负载均衡 源码
+
+@LoadBalanced  ->  `org.springframework.cloud.client.loadbalancer.LoadBalancerClient`
+
+![LoadBalancerClient继承关系](./img/LoadBalancerClient继承关系.png)
+
+- choose 根据传入的服务名，从负载均衡器中选一个对应服务的实例
+- execute 使用选出来的实例执行请求内容
+- 为系统构建一个 uri
+
+`org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration` 实现客户端负载均衡自动化配置
+
+- `LoadBalancerInterceptor` 对客户端发起的请求进行拦截，实现负载均衡
+- `RestTemplateCustomizer` 给 `RestTemplate` 增加 `LoadBalancerInterceptor` 拦截器
+- 维护一个所有被 `@LoadBalanced` 修饰的 `RestTemplate` 对象列表，通过 `RestTemplateCustomizer` 给所有需要负载均衡的 `RestTemplate` 增加 `LoadBalancerInterceptor` 拦截
+
+RestTemplate 发出请求之后，会被 LoadBalancerInterceptor 中的 interceptor 拦截，将服务名替换成 host
+
+
+
+LoadBalancerClient 实现类 `org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient`
+
+- 获取服务实例
+
+  `com.netflix.loadbalancer.ILoadBalancer` 该接口可以用来选择服务
+
+  ![ILoadBalancer接口](./img/ILoadBalancer接口.png)
+
+  - markServerDown：用来通知和标识负载均衡器中某个具体实例已经停止服务，不然负载均衡器在下一次获取服务实例清单前都会认为服务实例均是正常服务的。
+
+  - getAllServers：获取所有已知的服务实例列表，包括正常服务和停止服务的实例。
+
+  - chooseServer：通过某种策略，从负载均衡器中挑选出一个具体的服务实例。
+
+  - getReachableServers：获取当前正常服务的实例列表。
+
+  - addServers：向负载均衡器中维护的实例列表增加服务实例。
+
+    ![ILoadBalancer继承关系](./img/ILoadBalancer继承关系.png)
+
+    `BaseLoadBalancer` 实现基础的负载均衡，子类进行扩展
+
+    `RibbonClientConfiguration` 配置类中使用 `ZoneAwareLoadBalancer` 实现负载均衡
+
+  `com.netflix.loadbalancer.ZoneAwareLoadBalancer#chooseServer` 选择出 Server 
+
+  包装成 `RibbonServer`（该对象除了存储了服务实例的信息之外，还增加了服务名serviceId、是否需要使用HTTPS等其他信息）
+
+  使用该对象再回调`LoadBalancerInterceptor`请求拦截器中`LoadBalancerRequest`的`apply(final ServiceInstance instance)`函数，向一个实际的具体服务实例发起请求，从而实现一开始以服务名为host的URI请求，到实际访问host:post形式的具体地址的转换。
+
+  chooseServer -> RibbonServer -> apply -> ServiceRequestWrapper -> org.springframework.cloud.client.loadbalancer.ServiceRequestWrapper#getURI -> 通过 LoadBalancerClient 接口中的函数构建一个新的 uri
+
+
+
+SpringClientFactory：用来创建客户端负载均衡器的工厂类，为每个不同名的 ribbon 客户端生成不同的 spring 上下文
+
+RibbonLoadBalancerContext：是 LoadBalancerContext 的子类，用来存储被负载均衡器使用的上下文内容 和 api 操作
+
+TODO
+
+
+
+#### 负载均衡器
+
+![ILoadBalancer继承关系](./img/ILoadBalancer继承关系.png)
+
+AbstractLoadBalancer
+
+BaseLoadBalancer 实现负载均衡相关的基础内容
+
+- 定义并维护两个存储实例 Server 对象的列表 （正常 + 所有）
+- 定义用来存储负载均衡器各服务实例属性和统计信息的 LoadBalancerStats 对象
+- 定义检查服务实例是否正常服务的 IPing 对象
+- 定义检查服务实例操作的执行策略对象 IPingStrategy (默认为 SerialPingStrategy)
+- 定义负载均衡的处理规则 IRule (默认为 RoundRobinRule)
+- 启动 ping 任务，定时检查 Server 是否正常
+- 实现 ILoadBalancer 接口定义的负载均衡器功能
+  - 添加服务
+  - 选择服务
+  - 标记服务
+  - 获取可用服务列表
+  - 获取所有服务列表
+
+
+
+
+
