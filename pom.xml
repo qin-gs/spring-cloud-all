@@ -25,7 +25,7 @@
         <module>config-server</module>
         <module>config-client</module>
         <module>sleuth-server-zipkin</module>
-        <module>sleuth-service-hi</module>
+        <module>sleuth-server-hi</module>
         <module>sleuth-service-miya</module>
         <module>hystrix-service-hi</module>
         <module>hystrix-service-lucy</module>
@@ -40,6 +40,7 @@
         <java.version>1.8</java.version>
         <springboot-version>1.5.2.RELEASE</springboot-version>
         <springcloud-version>1.4.7.RELEASE</springcloud-version>
+        <feign.version>2.2.5.RELEASE</feign.version>
     </properties>
 
     <dependencyManagement>

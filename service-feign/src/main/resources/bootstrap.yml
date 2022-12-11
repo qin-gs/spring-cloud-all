@@ -1,0 +1,34 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+
+# feign 相关配置
+feign:
+  # 开启 gzip 压缩
+  compression:
+    request:
+      enabled: true
+      mime-types: text/html, application/json, application/xml
+      min-request-size: 1024
+    response:
+      enabled: true
+  httpclient:
+    enabled: false
+  okhttp:
+    enabled: true
+  # openfeign 集成 hystrix
+  hystrix:
+    enabled: true
+
+server:
+  port: 8765
+spring:
+  application:
+    name: service-feign
+
+#logging:
+#  level:
+#    root: info
